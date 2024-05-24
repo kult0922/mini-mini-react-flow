@@ -1,0 +1,33 @@
+.node {
+  /* for node outline */
+  border: solid 1px;
+  width: 100px;
+  height: 40px;
+  border-radius: 6px;
+  padding: 8px 16px;
+
+  /* for node content layout */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+
+  cursor: pointer;
+}
+
+.node-outside {
+  display: flex;
+  align-items: center;
+}
+
+.connector {
+  width: 10px;
+  height: 10px;
+  border: solid 1px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.node-wrapper {
+  position: absolute;
+}
