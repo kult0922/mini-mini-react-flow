@@ -1,10 +1,19 @@
 import { NodeComponent } from "../node/NodeComponent";
+import { EdgeComponent } from "../edge/EdgeComponent";
 import { useRef, useState } from "react";
 import "./board.css";
 
 type Node = {
   id: string;
   position: Position;
+};
+
+type Edge = {
+  id: string;
+  start: Position;
+  end: Position;
+  startNodeId?: string;
+  endNodeId?: string;
 };
 
 export function Board() {
@@ -19,7 +28,9 @@ export function Board() {
     },
   ]);
 
+  const [newEdge, setNewEdge] = useState<Edge | null>(null);
   const selectedNodeId = useRef<string | null>(null);
+  const selectedEdgeId = useRef<string | null>(null);
 
   const onMouseDownNode = (id: string) => {
     selectedNodeId.current = id;
@@ -27,6 +38,29 @@ export function Board() {
 
   const onMouseUpBoard = () => {
     selectedNodeId.current = null;
+    selectedEdgeId.current = null;
+    setNewEdge(null);
+  };
+
+  const onMouseDownConnector = (
+    connectorPosition: Position,
+    nodeId: string
+  ) => {
+    const edgeId = `edge-${new Date().getTime()}`;
+    selectedEdgeId.current = edgeId;
+    setNewEdge({
+      id: edgeId,
+      start: {
+        x: connectorPosition.x,
+        y: connectorPosition.y,
+      },
+      end: {
+        x: connectorPosition.x,
+        y: connectorPosition.y,
+      },
+      startNodeId: nodeId,
+      endNodeId: undefined,
+    });
   };
 
   const onMouseMoveBoard = (
@@ -51,6 +85,16 @@ export function Board() {
         )
       );
     }
+
+    if (selectedEdgeId.current && newEdge) {
+      setNewEdge({
+        ...newEdge,
+        end: {
+          x: e.clientX,
+          y: e.clientY,
+        },
+      });
+    }
   };
 
   return (
@@ -67,8 +111,13 @@ export function Board() {
             id={node.id}
             position={node.position}
             onMouseDownNode={onMouseDownNode}
+            onMouseDownConnector={onMouseDownConnector}
           />
         ))}
+
+        {selectedEdgeId.current && newEdge && (
+          <EdgeComponent from={newEdge.start} to={newEdge.end} />
+        )}
       </div>
     </>
   );
