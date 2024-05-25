@@ -27,6 +27,7 @@ export function Board() {
       position: { x: 400, y: 100 },
     },
   ]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
   const [newEdge, setNewEdge] = useState<Edge | null>(null);
   const selectedNodeId = useRef<string | null>(null);
@@ -63,6 +64,27 @@ export function Board() {
     });
   };
 
+  const onMouseEnterConnector = (
+    connectorPosition: Position,
+    nodeId: string
+  ) => {
+    if (!newEdge) return;
+
+    setEdges([
+      ...edges,
+      {
+        ...newEdge,
+        end: {
+          x: connectorPosition.x,
+          y: connectorPosition.y,
+        },
+        endNodeId: nodeId,
+      },
+    ]);
+    setNewEdge(null);
+    selectedEdgeId.current = null;
+  };
+
   const onMouseMoveBoard = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -82,6 +104,28 @@ export function Board() {
                 },
               }
             : node
+        )
+      );
+
+      setEdges(
+        edges.map((edge) =>
+          edge.startNodeId === selectedNodeId.current
+            ? {
+                ...edge,
+                start: {
+                  x: edge.start.x + e.movementX,
+                  y: edge.start.y + e.movementY,
+                },
+              }
+            : edge.endNodeId === selectedNodeId.current
+            ? {
+                ...edge,
+                end: {
+                  x: edge.end.x + e.movementX,
+                  y: edge.end.y + e.movementY,
+                },
+              }
+            : edge
         )
       );
     }
@@ -112,9 +156,13 @@ export function Board() {
             position={node.position}
             onMouseDownNode={onMouseDownNode}
             onMouseDownConnector={onMouseDownConnector}
+            onMouseEnterConnector={onMouseEnterConnector}
           />
         ))}
 
+        {edges.map((edge) => (
+          <EdgeComponent key={`${edge.id}`} from={edge.start} to={edge.end} />
+        ))}
         {selectedEdgeId.current && newEdge && (
           <EdgeComponent from={newEdge.start} to={newEdge.end} />
         )}

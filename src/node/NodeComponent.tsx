@@ -5,6 +5,7 @@ type Props = {
   position: Position;
   onMouseDownNode: (id: string) => void;
   onMouseDownConnector: (connectorPosition: Position, nodeId: string) => void;
+  onMouseEnterConnector: (connectorPosition: Position, nodeId: string) => void;
 };
 
 export const NodeComponent = ({
@@ -12,6 +13,7 @@ export const NodeComponent = ({
   position,
   onMouseDownNode,
   onMouseDownConnector,
+  onMouseEnterConnector,
 }: Props) => {
   const handleMouseDownNode = () => {
     onMouseDownNode(id);
@@ -30,6 +32,20 @@ export const NodeComponent = ({
     );
   };
 
+  const handleMouseEnterConnector = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    const connectorRect = e.currentTarget.getBoundingClientRect();
+
+    onMouseEnterConnector(
+      {
+        x: connectorRect.x + connectorRect.width / 2,
+        y: connectorRect.y + connectorRect.height / 2,
+      },
+      id
+    );
+  };
+
   return (
     <div
       style={{
@@ -39,9 +55,17 @@ export const NodeComponent = ({
       className="node-wrapper"
     >
       <div className="node-outside">
-        <div className="connector" onMouseDown={handleMouseDownConnector} />
+        <div
+          className="connector"
+          onMouseDown={handleMouseDownConnector}
+          onMouseEnter={handleMouseEnterConnector}
+        />
         <div className="node">{id}</div>
-        <div className="connector" onMouseDown={handleMouseDownConnector} />
+        <div
+          className="connector"
+          onMouseDown={handleMouseDownConnector}
+          onMouseEnter={handleMouseEnterConnector}
+        />
       </div>
     </div>
   );
